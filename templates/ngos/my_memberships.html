@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}My Memberships{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-building"></i> My NGO Memberships</h3>
+            </div>
+            <div class="card-body">
+                {% if memberships %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>NGO</th>
+                                <th>Status</th>
+                                <th>Requested</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for membership in memberships %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'ngos:ngo_detail' membership.ngo.id %}">
+                                        {{ membership.ngo.organization_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if membership.status == 'APPROVED' %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% elif membership.status == 'PENDING' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                    {% elif membership.status == 'REJECTED' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ membership.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ membership.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'ngos:ngo_detail' membership.ngo.id %}" class="btn btn-sm btn-primary">
+                                        View NGO
+                                    </a>
+                                    {% if membership.status == 'APPROVED' %}
+                                    <a href="{% url 'ngos:leave_ngo' membership.id %}" class="btn btn-sm btn-danger" 
+                                       onclick="return confirm('Are you sure you want to leave this NGO?')">
+                                        Leave
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-5">
+                    You haven't joined any NGOs yet.
+                    <br>
+                    <a href="{% url 'ngos:ngo_list' %}" class="btn btn-primary mt-3">Browse NGOs</a>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-list-task"></i> Tasks</h3>
+            </div>
+            <div class="card-body">
+                <!-- Status Filter -->
+                <div class="mb-3">
+                    <a href="{% url 'tasks:task_list' %}" class="btn btn-sm btn-outline-secondary">All</a>
+                    <a href="?status=TASK_ASSIGNED" class="btn btn-sm btn-outline-warning">Assigned</a>
+                    <a href="?status=IN_PROGRESS" class="btn btn-sm btn-outline-primary">In Progress</a>
+                    <a href="?status=AWAITING_CONFIRMATION" class="btn btn-sm btn-outline-info">Awaiting Confirmation</a>
+                    <a href="?status=COMPLETED" class="btn btn-sm btn-outline-success">Completed</a>
+                </div>
+                
+                {% if tasks %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Complaint</th>
+                                {% if user.is_ngo %}
+                                <th>Volunteer</th>
+                                {% endif %}
+                                <th>Status</th>
+                                <th>Assigned Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                            <tr>
+                                <td>{{ task.complaint.title }}</td>
+                                {% if user.is_ngo %}
+                                <td>{{ task.assigned_volunteer.username }}</td>
+                                {% endif %}
+                                <td>
+                                    {% if task.status == 'COMPLETED' %}
+                                    <span class="badge bg-success">{{ task.get_status_display }}</span>
+                                    {% elif task.status == 'IN_PROGRESS' %}
+                                    <span class="badge bg-info">{{ task.get_status_display }}</span>
+                                    {% elif task.status == 'AWAITING_CONFIRMATION' %}
+                                    <span class="badge bg-warning">{{ task.get_status_display }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ task.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ task.assigned_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'tasks:task_detail' task.id %}" class="btn btn-sm btn-primary">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-5">No tasks found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

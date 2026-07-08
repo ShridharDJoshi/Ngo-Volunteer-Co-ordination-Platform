@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}NGO List{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-building"></i> NGO Organizations
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    {% if ngos %}
+        {% for ngo in ngos %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                {% if ngo.logo %}
+                <img src="{{ ngo.logo.url }}" class="card-img-top" alt="{{ ngo.organization_name }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="bi bi-building" style="font-size: 4rem; color: #ccc;"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ ngo.organization_name }}</h5>
+                    <p class="card-text text-muted">{{ ngo.mission|truncatewords:20 }}</p>
+                    
+                    {% if ngo.membership_status == 'APPROVED' %}
+                    <span class="badge bg-success mb-2">
+                        <i class="bi bi-check-circle"></i> Member
+                    </span>
+                    {% elif ngo.membership_status == 'PENDING' %}
+                    <span class="badge bg-warning mb-2">
+                        <i class="bi bi-hourglass"></i> Pending
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{% url 'ngos:ngo_detail' ngo.id %}" class="btn btn-sm btn-outline-primary">
+                        View Details
+                    </a>
+                    {% if not ngo.membership_status %}
+                    <a href="{% url 'ngos:request_membership' ngo.id %}" class="btn btn-sm btn-primary">
+                        Request to Join
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <p class="text-muted text-center py-5">No NGOs registered yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

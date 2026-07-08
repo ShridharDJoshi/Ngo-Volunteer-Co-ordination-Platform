@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Complaints{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3><i class="bi bi-file-earmark-text"></i> Complaints</h3>
+                <a href="{% url 'complaints:complaint_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Submit New Complaint
+                </a>
+            </div>
+            <div class="card-body">
+                <!-- Status Filter -->
+                <div class="mb-3">
+                    <a href="{% url 'complaints:complaint_list' %}" class="btn btn-sm btn-outline-secondary">All</a>
+                    <a href="?status=PENDING" class="btn btn-sm btn-outline-warning">Pending</a>
+                    <a href="?status=ACCEPTED" class="btn btn-sm btn-outline-info">Accepted</a>
+                    <a href="?status=IN_PROGRESS" class="btn btn-sm btn-outline-primary">In Progress</a>
+                    <a href="?status=COMPLETED" class="btn btn-sm btn-outline-success">Completed</a>
+                    <a href="?status=REJECTED" class="btn btn-sm btn-outline-danger">Rejected</a>
+                </div>
+                
+                {% if complaints %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                                {% if not user.is_volunteer %}
+                                <th>Submitted By</th>
+                                {% endif %}
+                                {% if not user.is_ngo %}
+                                <th>NGO</th>
+                                {% endif %}
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for complaint in complaints %}
+                            <tr>
+                                <td>{{ complaint.title }}</td>
+                                <td><span class="badge bg-secondary">{{ complaint.get_category_display }}</span></td>
+                                <td>{{ complaint.location|truncatewords:5 }}</td>
+                                {% if not user.is_volunteer %}
+                                <td>{{ complaint.submitted_by.username }}</td>
+                                {% endif %}
+                                {% if not user.is_ngo %}
+                                <td>
+                                    {% if complaint.linked_ngo %}
+                                        {{ complaint.linked_ngo.organization_name }}
+                                    {% elif complaint.assigned_ngo %}
+                                        {{ complaint.assigned_ngo.organization_name }}
+                                        <span class="badge bg-info">Assigned</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Public</span>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                                <td>
+                                    {% if complaint.status == 'COMPLETED' %}
+                                    <span class="badge bg-success">{{ complaint.get_status_display }}</span>
+                                    {% elif complaint.status == 'REJECTED' %}
+                                    <span class="badge bg-danger">{{ complaint.get_status_display }}</span>
+                                    {% elif complaint.status == 'IN_PROGRESS' %}
+                                    <span class="badge bg-info">{{ complaint.get_status_display }}</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">{{ complaint.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ complaint.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'complaints:complaint_detail' complaint.id %}" class="btn btn-sm btn-primary">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-5">No complaints found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

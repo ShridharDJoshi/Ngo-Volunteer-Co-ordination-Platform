@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3><i class="bi bi-bell"></i> Notifications</h3>
+                {% if unread_count > 0 %}
+                <a href="?mark_all_read=true" class="btn btn-sm btn-primary">
+                    <i class="bi bi-check-all"></i> Mark All as Read
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if notifications %}
+                <div class="list-group">
+                    {% for notification in notifications %}
+                    <div class="list-group-item {% if not notification.is_read %}bg-light{% endif %}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                {% if notification.notification_type == 'MEMBERSHIP_REQUEST' %}
+                                <i class="bi bi-person-plus text-info"></i>
+                                {% elif notification.notification_type == 'MEMBERSHIP_APPROVED' %}
+                                <i class="bi bi-check-circle text-success"></i>
+                                {% elif notification.notification_type == 'MEMBERSHIP_REJECTED' %}
+                                <i class="bi bi-x-circle text-danger"></i>
+                                {% elif notification.notification_type == 'TASK_ASSIGNED' %}
+                                <i class="bi bi-list-task text-primary"></i>
+                                {% elif notification.notification_type == 'TASK_COMPLETED' %}
+                                <i class="bi bi-check-square text-success"></i>
+                                {% elif notification.notification_type == 'COMPLAINT_ACCEPTED' %}
+                                <i class="bi bi-check-circle text-success"></i>
+                                {% elif notification.notification_type == 'COMPLAINT_REJECTED' %}
+                                <i class="bi bi-x-circle text-danger"></i>
+                                {% endif %}
+                                {{ notification.get_notification_type_display }}
+                            </h6>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                        <p class="mb-1">{{ notification.message }}</p>
+                        <div class="mt-2">
+                            {% if not notification.is_read %}
+                            <a href="{% url 'notifications:mark_as_read' notification.id %}" class="btn btn-sm btn-outline-primary">
+                                Mark as Read
+                            </a>
+                            {% else %}
+                            <a href="{% url 'notifications:mark_as_unread' notification.id %}" class="btn btn-sm btn-outline-secondary">
+                                Mark as Unread
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'notifications:delete_notification' notification.id %}" class="btn btn-sm btn-outline-danger">
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-5">
+                    <i class="bi bi-bell-slash" style="font-size: 3rem;"></i>
+                    <br>No notifications yet.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

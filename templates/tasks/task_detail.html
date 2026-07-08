@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}Task Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-list-task"></i> Task Details</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Complaint:</strong> 
+                    <a href="{% url 'complaints:complaint_detail' task.complaint.id %}">{{ task.complaint.title }}</a>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Status:</strong>
+                    {% if task.status == 'COMPLETED' %}
+                    <span class="badge bg-success">{{ task.get_status_display }}</span>
+                    {% elif task.status == 'IN_PROGRESS' %}
+                    <span class="badge bg-info">{{ task.get_status_display }}</span>
+                    {% elif task.status == 'AWAITING_CONFIRMATION' %}
+                    <span class="badge bg-warning">{{ task.get_status_display }}</span>
+                    {% else %}
+                    <span class="badge bg-secondary">{{ task.get_status_display }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Assigned To:</strong> {{ task.assigned_volunteer.username }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Assigned By:</strong> {{ task.assigned_by.username }}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Assigned Date:</strong> {{ task.assigned_at|date:"F d, Y H:i" }}
+                </div>
+                
+                {% if task.accepted_at %}
+                <div class="mb-3">
+                    <strong>Accepted Date:</strong> {{ task.accepted_at|date:"F d, Y H:i" }}
+                </div>
+                {% endif %}
+                
+                {% if task.completed_at %}
+                <div class="mb-3">
+                    <strong>Completed Date:</strong> {{ task.completed_at|date:"F d, Y H:i" }}
+                </div>
+                {% endif %}
+                
+                <!-- Workflow Guide -->
+                {% if user.is_volunteer and task.assigned_volunteer == user %}
+                <div class="card border-primary mb-4 mt-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-diagram-3"></i> How to Complete This Task</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="step mb-3">
+                                    <div class="step-number badge bg-primary" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 18px;">1</div>
+                                    <h6 class="mt-2 mb-1"><strong>Accept the Task</strong></h6>
+                                    <p class="text-muted small mb-0">Click "Accept Task" to show you're ready to work on it</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="step mb-3">
+                                    <div class="step-number badge bg-success" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 18px;">2</div>
+                                    <h6 class="mt-2 mb-1"><strong>Do the Work</strong></h6>
+                                    <p class="text-muted small mb-0">Complete the task described in the complaint</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="step mb-3">
+                                    <div class="step-number badge bg-info" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 18px;">3</div>
+                                    <h6 class="mt-2 mb-1"><strong>Upload Proof</strong></h6>
+                                    <p class="text-muted small mb-0">Click "Upload Proof" to show images of completed work (REQUIRED)</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="step mb-3">
+                                    <div class="step-number badge bg-warning" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 18px;">4</div>
+                                    <h6 class="mt-2 mb-1"><strong>Mark Complete</strong></h6>
+                                    <p class="text-muted small mb-0">Click "Mark Task as Complete" to submit for NGO review</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <!-- Volunteer Actions -->
+                {% if user.is_volunteer and task.assigned_volunteer == user %}
+                    {% if task.status == 'TASK_ASSIGNED' %}
+                    <div class="alert alert-warning" role="alert">
+                        <h5><i class="bi bi-exclamation-triangle"></i> Action Required</h5>
+                        <p class="mb-0">You have been assigned this task. Please accept or decline it.</p>
+                    </div>
+                    <div class="mb-3">
+                        <a href="{% url 'tasks:accept_task' task.id %}" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Accept Task
+                        </a>
+                        <a href="{% url 'tasks:decline_task' task.id %}" class="btn btn-danger">
+                            <i class="bi bi-x-circle"></i> Decline Task
+                        </a>
+                    </div>
+                    {% elif task.status == 'IN_PROGRESS' %}
+                    <div class="card border-info mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-play-circle"></i> Work in Progress</h5>
+                            {% if proofs %}
+                            <p class="card-text">You have uploaded {{ proofs|length }} proof image(s). You can now mark the task as complete.</p>
+                            <a href="{% url 'tasks:mark_complete' task.id %}" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Mark Task as Complete
+                            </a>
+                            <a href="{% url 'tasks:upload_proof' task.id %}" class="btn btn-outline-primary">
+                                <i class="bi bi-plus-circle"></i> Add More Proof
+                            </a>
+                            {% else %}
+                            <p class="card-text text-warning"><i class="bi bi-exclamation-circle"></i> No proof images uploaded yet.</p>
+                            <p class="card-text small">You must upload at least one completion proof image before marking the task as complete.</p>
+                            <a href="{% url 'tasks:upload_proof' task.id %}" class="btn btn-primary">
+                                <i class="bi bi-upload"></i> Upload Proof Now
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% elif task.status == 'AWAITING_CONFIRMATION' %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-clock"></i> <strong>Waiting for NGO Confirmation</strong><br>
+                        <small>The NGO is reviewing your completion proof. You will be notified once they confirm or request revisions.</small>
+                    </div>
+                    <a href="{% url 'tasks:upload_proof' task.id %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-upload"></i> Upload Additional Proof
+                    </a>
+                    {% elif task.status == 'COMPLETED' %}
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle"></i> <strong>Task Completed!</strong><br>
+                        <small>The NGO has confirmed your work. Thank you for your contribution!</small>
+                    </div>
+                    {% endif %}
+                {% endif %}
+                
+                <!-- NGO Actions -->
+                {% if user.is_ngo and task.assigned_by == user %}
+                    {% if task.status == 'AWAITING_CONFIRMATION' %}
+                    <div class="card border-warning mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-question-circle"></i> Proof Review Required</h5>
+                            <p class="card-text">Please review the completion proof images below. You can either confirm the completion or request a revision.</p>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'tasks:confirm_completion' task.id %}" class="btn btn-success">
+                                    <i class="bi bi-check-circle"></i> Confirm Completion & Mark Complaint Resolved
+                                </a>
+                                <a href="{% url 'tasks:reject_proof' task.id %}" class="btn btn-warning">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Request Revision
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif task.status == 'COMPLETED' %}
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle"></i> <strong>Complaint Resolved</strong><br>
+                        <small>This task has been completed and confirmed. The complaint submitter has been notified.</small>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Completion Proofs -->
+        {% if proofs %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-images"></i> Completion Proof</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for proof in proofs %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <img src="{{ proof.image.url }}" class="card-img-top" alt="Proof">
+                            <div class="card-body">
+                                {% if proof.description %}
+                                <p class="card-text">{{ proof.description }}</p>
+                                {% endif %}
+                                <small class="text-muted">Uploaded: {{ proof.uploaded_at|date:"F d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Complaint Details</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Title:</strong><br>{{ task.complaint.title }}</p>
+                <p><strong>Location:</strong><br>{{ task.complaint.location }}</p>
+                <p><strong>Category:</strong><br>{{ task.complaint.get_category_display }}</p>
+                <a href="{% url 'complaints:complaint_detail' task.complaint.id %}" class="btn btn-sm btn-outline-primary">
+                    View Full Complaint
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,437 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Login Type - Community Sanitation Management</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --secondary-color: #27ae60;
+            --dark-color: #2c3e50;
+            --admin-color: #e74c3c;
+            --volunteer-color: #3498db;
+            --ngo-color: #f39c12;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .choice-container {
+            max-width: 1200px;
+            width: 100%;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-section {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header-section p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            opacity: 0.9;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+            transform: translateX(-5px);
+            color: white;
+        }
+
+        .role-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            height: 100%;
+            border: 4px solid transparent;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .role-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .role-card.admin-card {
+            border-color: var(--admin-color);
+        }
+
+        .role-card.admin-card:hover {
+            border-color: var(--admin-color);
+            box-shadow: 0 20px 50px rgba(231, 76, 60, 0.4);
+        }
+
+        .role-card.volunteer-card {
+            border-color: var(--volunteer-color);
+        }
+
+        .role-card.volunteer-card:hover {
+            border-color: var(--volunteer-color);
+            box-shadow: 0 20px 50px rgba(52, 152, 219, 0.4);
+        }
+
+        .role-card.ngo-card {
+            border-color: var(--ngo-color);
+        }
+
+        .role-card.ngo-card:hover {
+            border-color: var(--ngo-color);
+            box-shadow: 0 20px 50px rgba(243, 156, 18, 0.4);
+        }
+
+        .role-card-header {
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .role-card.admin-card .role-card-header {
+            background: linear-gradient(135deg, var(--admin-color), #c0392b);
+        }
+
+        .role-card.volunteer-card .role-card-header {
+            background: linear-gradient(135deg, var(--volunteer-color), #2980b9);
+        }
+
+        .role-card.ngo-card .role-card-header {
+            background: linear-gradient(135deg, var(--ngo-color), #e67e22);
+        }
+
+        .role-icon {
+            font-size: 5rem;
+            color: white;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .role-card:hover .role-icon {
+            animation: none;
+            transform: scale(1.2) rotate(5deg);
+            transition: all 0.3s;
+        }
+
+        .role-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .role-subtitle {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .role-card-body {
+            padding: 30px;
+        }
+
+        .role-description {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .role-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 25px;
+        }
+
+        .role-features li {
+            padding: 10px 0;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .role-features li i {
+            font-size: 1.2rem;
+        }
+
+        .role-card.admin-card .role-features li i {
+            color: var(--admin-color);
+        }
+
+        .role-card.volunteer-card .role-features li i {
+            color: var(--volunteer-color);
+        }
+
+        .role-card.ngo-card .role-features li i {
+            color: var(--ngo-color);
+        }
+
+        .btn-select {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-select-admin {
+            background: var(--admin-color);
+            color: white;
+        }
+
+        .btn-select-admin:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-select-volunteer {
+            background: var(--volunteer-color);
+            color: white;
+        }
+
+        .btn-select-volunteer:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-select-ngo {
+            background: var(--ngo-color);
+            color: white;
+        }
+
+        .btn-select-ngo:hover {
+            background: #e67e22;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 2rem;
+            }
+
+            .role-card {
+                margin-bottom: 30px;
+            }
+
+            .role-icon {
+                font-size: 4rem;
+            }
+
+            .role-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="choice-container">
+        <div class="text-center">
+            <a href="{% url 'home' %}" class="back-link">
+                <i class="bi bi-arrow-left-circle"></i> Back to Home
+            </a>
+        </div>
+
+        <div class="header-section">
+            <h1><i class="bi bi-box-arrow-in-right"></i> Choose Your Login Type</h1>
+            <p>Select your role to access your dashboard</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Admin Card -->
+            <div class="col-md-4">
+                <a href="{% url 'users:login' %}?role=admin" class="text-decoration-none">
+                    <div class="role-card admin-card">
+                        <div class="role-card-header">
+                            <div class="role-icon">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </div>
+                            <h2 class="role-title">Administrator</h2>
+                            <p class="role-subtitle">System Management</p>
+                        </div>
+                        <div class="role-card-body">
+                            <p class="role-description">
+                                Full system access with administrative privileges to manage the entire platform.
+                            </p>
+                            <ul class="role-features">
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Manage all users and roles</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Monitor platform activity</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>System configuration access</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Generate reports & analytics</span>
+                                </li>
+                            </ul>
+                            <button class="btn btn-select btn-select-admin">
+                                <i class="bi bi-box-arrow-in-right"></i> Login as Admin
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Volunteer Card -->
+            <div class="col-md-4">
+                <a href="{% url 'users:login' %}?role=volunteer" class="text-decoration-none">
+                    <div class="role-card volunteer-card">
+                        <div class="role-card-header">
+                            <div class="role-icon">
+                                <i class="bi bi-person-badge-fill"></i>
+                            </div>
+                            <h2 class="role-title">Volunteer</h2>
+                            <p class="role-subtitle">Community Helper</p>
+                        </div>
+                        <div class="role-card-body">
+                            <p class="role-description">
+                                Join the community effort to report and resolve sanitation issues in your area.
+                            </p>
+                            <ul class="role-features">
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Submit sanitation complaints</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Join NGO teams</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Complete assigned tasks</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Track your contributions</span>
+                                </li>
+                            </ul>
+                            <button class="btn btn-select btn-select-volunteer">
+                                <i class="bi bi-box-arrow-in-right"></i> Login as Volunteer
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- NGO Card -->
+            <div class="col-md-4">
+                <a href="{% url 'users:login' %}?role=ngo" class="text-decoration-none">
+                    <div class="role-card ngo-card">
+                        <div class="role-card-header">
+                            <div class="role-icon">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <h2 class="role-title">NGO</h2>
+                            <p class="role-subtitle">Organization Account</p>
+                        </div>
+                        <div class="role-card-body">
+                            <p class="role-description">
+                                Manage your organization, accept complaints, and coordinate volunteer efforts.
+                            </p>
+                            <ul class="role-features">
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Manage volunteer memberships</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Review & accept complaints</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Assign tasks to volunteers</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>Verify task completion</span>
+                                </li>
+                            </ul>
+                            <button class="btn btn-select btn-select-ngo">
+                                <i class="bi bi-box-arrow-in-right"></i> Login as NGO
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <p class="text-white fs-5">
+                Don't have an account? 
+                <a href="{% url 'users:register_choice' %}" class="text-white fw-bold" style="text-decoration: none; border-bottom: 2px solid white;">
+                    Register here
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

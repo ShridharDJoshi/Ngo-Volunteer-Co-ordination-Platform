@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ ngo.organization_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            {% if ngo.logo %}
+            <img src="{{ ngo.logo.url }}" class="card-img-top" alt="{{ ngo.organization_name }}">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                <i class="bi bi-building" style="font-size: 5rem; color: #ccc;"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                {% if membership %}
+                    {% if membership.status == 'APPROVED' %}
+                    <span class="badge bg-success w-100 mb-2">
+                        <i class="bi bi-check-circle"></i> You are a member
+                    </span>
+                    {% elif membership.status == 'PENDING' %}
+                    <span class="badge bg-warning w-100 mb-2">
+                        <i class="bi bi-hourglass"></i> Request Pending
+                    </span>
+                    {% elif membership.status == 'REJECTED' %}
+                    <span class="badge bg-danger w-100 mb-2">
+                        <i class="bi bi-x-circle"></i> Request Rejected
+                    </span>
+                    <a href="{% url 'ngos:request_membership' ngo.id %}" class="btn btn-primary w-100">
+                        Request Again
+                    </a>
+                    {% endif %}
+                {% else %}
+                    {% if user.is_volunteer %}
+                    <a href="{% url 'ngos:request_membership' ngo.id %}" class="btn btn-primary w-100">
+                        Request to Join
+                    </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2>{{ ngo.organization_name }}</h2>
+                
+                <div class="mb-3">
+                    <strong><i class="bi bi-phone"></i> Phone:</strong>
+                    <p>{{ ngo.phone }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <strong><i class="bi bi-geo-alt"></i> Address:</strong>
+                    <p>{{ ngo.address }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <strong><i class="bi bi-flag"></i> Mission:</strong>
+                    <p>{{ ngo.mission }}</p>
+                </div>
+                
+                {% if ngo.description %}
+                <div class="mb-3">
+                    <strong><i class="bi bi-info-circle"></i> About:</strong>
+                    <p>{{ ngo.description }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <strong><i class="bi bi-people"></i> Volunteers:</strong>
+                    <p>{{ approved_volunteers.count }} active members</p>
+                </div>
+            </div>
+        </div>
+        
+        {% if approved_volunteers %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Active Volunteers</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for membership in approved_volunteers %}
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-person-circle me-2" style="font-size: 2rem;"></i>
+                            <div>
+                                <strong>{{ membership.volunteer.username }}</strong>
+                                <br><small class="text-muted">Since {{ membership.created_at|date:"M Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

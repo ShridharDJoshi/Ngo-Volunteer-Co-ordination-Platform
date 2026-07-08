@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}Volunteer Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-speedometer2"></i> Volunteer Dashboard
+        </h1>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-file-earmark-text"></i> Total Complaints
+                </h5>
+                <h2>{{ total_complaints }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-check-circle"></i> Completed Tasks
+                </h5>
+                <h2>{{ completed_tasks }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-hourglass-split"></i> In Progress
+                </h5>
+                <h2>{{ in_progress_tasks }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'complaints:complaint_create' %}" class="btn btn-primary me-2">
+                    <i class="bi bi-plus-circle"></i> Submit New Complaint
+                </a>
+                <a href="{% url 'ngos:ngo_list' %}" class="btn btn-info me-2">
+                    <i class="bi bi-building"></i> Browse NGOs
+                </a>
+                <a href="{% url 'users:profile' %}" class="btn btn-secondary">
+                    <i class="bi bi-person"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Help Requests from NGOs -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning bg-opacity-25 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-bell"></i> NGO Help Requests For You
+                </h5>
+                <span class="badge bg-warning text-dark">{{ pending_help_requests|length }} Pending</span>
+            </div>
+            <div class="card-body">
+                {% if pending_help_requests %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>NGO</th>
+                                <th>Complaint</th>
+                                <th>Message</th>
+                                <th>Requested On</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for help_req in pending_help_requests %}
+                            <tr>
+                                <td>{{ help_req.ngo.organization_name }}</td>
+                                <td>
+                                    <a href="{% url 'complaints:complaint_detail' help_req.complaint.id %}">{{ help_req.complaint.title }}</a>
+                                </td>
+                                <td>{{ help_req.message|default:'No message'|truncatechars:80 }}</td>
+                                <td>{{ help_req.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'complaints:accept_help_request' help_req.id %}" class="btn btn-sm btn-success">
+                                        <i class="bi bi-check-circle"></i> Accept
+                                    </a>
+                                    <a href="{% url 'complaints:decline_help_request' help_req.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Decline
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No pending NGO help requests.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Memberships -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-building"></i> My NGO Memberships
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if my_memberships %}
+                <ul class="list-group">
+                    {% for membership in my_memberships %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="{% url 'ngos:ngo_detail' membership.ngo.id %}">
+                            {{ membership.ngo.organization_name }}
+                        </a>
+                        <span class="badge bg-success">Active</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">You are not a member of any NGO yet.</p>
+                <a href="{% url 'ngos:ngo_list' %}" class="btn btn-sm btn-primary">Browse NGOs</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-hourglass"></i> Pending Requests
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if pending_requests %}
+                <ul class="list-group">
+                    {% for request in pending_requests %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ request.ngo.organization_name }}
+                        <span class="badge bg-warning">Pending</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">No pending requests.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My Complaints -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-text"></i> Recent Complaints
+                </h5>
+                <a href="{% url 'complaints:complaint_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if my_complaints %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>NGO</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for complaint in my_complaints %}
+                            <tr>
+                                <td>{{ complaint.title }}</td>
+                                <td><span class="badge bg-secondary">{{ complaint.get_category_display }}</span></td>
+                                <td>{{ complaint.linked_ngo.organization_name }}</td>
+                                <td>
+                                    {% if complaint.status == 'COMPLETED' %}
+                                    <span class="badge bg-success">{{ complaint.get_status_display }}</span>
+                                    {% elif complaint.status == 'REJECTED' %}
+                                    <span class="badge bg-danger">{{ complaint.get_status_display }}</span>
+                                    {% elif complaint.status == 'IN_PROGRESS' %}
+                                    <span class="badge bg-info">{{ complaint.get_status_display }}</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">{{ complaint.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ complaint.created_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'complaints:complaint_detail' complaint.id %}" class="btn btn-sm btn-primary">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No complaints submitted yet.</p>
+                <a href="{% url 'complaints:complaint_create' %}" class="btn btn-sm btn-primary">Submit Your First Complaint</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My Tasks -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-task"></i> My Tasks
+                </h5>
+                <a href="{% url 'tasks:task_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if my_tasks %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Complaint</th>
+                                <th>Status</th>
+                                <th>Assigned</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in my_tasks %}
+                            <tr>
+                                <td>{{ task.complaint.title }}</td>
+                                <td>
+                                    {% if task.status == 'COMPLETED' %}
+                                    <span class="badge bg-success">{{ task.get_status_display }}</span>
+                                    {% elif task.status == 'IN_PROGRESS' %}
+                                    <span class="badge bg-info">{{ task.get_status_display }}</span>
+                                    {% elif task.status == 'AWAITING_CONFIRMATION' %}
+                                    <span class="badge bg-warning">{{ task.get_status_display }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ task.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ task.assigned_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'tasks:task_detail' task.id %}" class="btn btn-sm btn-primary">
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No tasks assigned yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
